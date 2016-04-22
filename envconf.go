@@ -5,25 +5,23 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 // ConfigFromEnv parses the given flagset and fills them with configs from the environment
 func ConfigFromEnv(set *flag.FlagSet) error {
-	var err error
+	var errs []string
 	set.VisitAll(func(f *flag.Flag) {
-		if err != nil {
-			return
-		}
-
 		val := os.Getenv(f.Name)
 		if val == "" {
-			err = fmt.Errorf("env variable %q missing", f.Name)
+			errs = append(errs, fmt.Sprintf("env variable %s missing", f.Name))
 			return
 		}
-		if ferr := f.Value.Set(val); ferr != nil {
-			err = fmt.Errorf("failed to set flag %q with value %q", f.Name, val)
+		if err := f.Value.Set(val); err != nil {
+			errs = append(errs, fmt.Sprintf("failed to set flag %q with value %q - %s\n", f.Name, val, err))
+
 		}
 	})
 
-	return err
+	return fmt.Errorf(strings.Join(errs, ", "))
 }
