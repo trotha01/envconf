@@ -23,5 +23,8 @@ func ConfigFromEnv(set *flag.FlagSet) error {
 		}
 	})
 
-	return fmt.Errorf(strings.Join(errs, ", "))
+	if len(errs) != 0 {
+		return fmt.Errorf(strings.Join(errs, ", "))
+	}
+	return nil
 }
